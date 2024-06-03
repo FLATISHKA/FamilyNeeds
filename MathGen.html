@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Problems Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        width: 80%;
+        margin: auto;
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+      }
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Math Problems Generator</h1>
+      <label for="numPages">Number of Pages:</label>
+      <input type="number" id="numPages" name="numPages" min="1" value="1" />
+      <button onclick="generateProblems()">Generate Problems</button>
+      <button onclick="exportToPDF()">Export to PDF</button>
+      <table id="mathTable"></table>
+    </div>
+
+    <script>
+      function generateProblems() {
+        const numPages = document.getElementById("numPages").value;
+        const numRows = 29;
+        const numCols = 3;
+        const table = document.getElementById("mathTable");
+        table.innerHTML = ""; // Clear previous table content
+
+        for (let p = 0; p < numPages; p++) {
+          for (let i = 0; i < numRows; i++) {
+            const row = table.insertRow();
+            for (let j = 0; j < numCols; j++) {
+              const cell = row.insertCell();
+              const problem = generateProblem();
+              cell.textContent = problem;
+            }
+          }
+          // Add a page break
+          if (p < numPages - 1) {
+            const row = table.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = numCols;
+            cell.innerHTML = "<hr />";
+          }
+        }
+      }
+
+      function generateProblem() {
+        const operations = ["+", "-", "*", "/"];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
+        let a, b, problem;
+
+        switch (operation) {
+          case "+":
+            a = Math.floor(Math.random() * 100) + 1;
+            b = Math.floor(Math.random() * 100) + 1;
+            problem = `${a} + ${b}`;
+            break;
+          case "-":
+            a = Math.floor(Math.random() * 100) + 1;
+            b = Math.floor(Math.random() * 100) + 1;
+            if (a < b) [a, b] = [b, a];
+            problem = `${a} - ${b}`;
+            break;
+          case "*":
+            a = Math.floor(Math.random() * 10) + 1;
+            b = Math.floor(Math.random() * 10) + 1;
+            problem = `${a} * ${b}`;
+            break;
+          case "/":
+            b = Math.floor(Math.random() * 10) + 1;
+            a = b * Math.floor(Math.random() * 10 + 1);
+            problem = `${a} / ${b}`;
+            break;
+        }
+        return problem + " =";
+      }
+
+      function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const table = document.getElementById("mathTable");
+        const numRows = 29;
+        const numCols = 3;
+        const colSpacing = 60;
+        const lineHeight = 10;
+        const numPages = document.getElementById("numPages").value;
+
+        let currentRow = 0;
+        for (let p = 0; p < numPages; p++) {
+          if (p > 0) doc.addPage();
+          let y = 10;
+          for (let i = 0; i < numRows; i++) {
+            if (currentRow >= table.rows.length) break; // Check if currentRow is within bounds
+            for (let j = 0; j < numCols; j++) {
+              const cell = table.rows[currentRow].cells[j];
+              if (cell) {
+                const cellText = cell.textContent;
+                doc.text(cellText, 10 + j * colSpacing, y);
+              }
+            }
+            y += lineHeight;
+            currentRow++;
+          }
+        }
+
+        doc.save("Math_Problems.pdf");
+      }
+    </script>
+  </body>
+</html>
